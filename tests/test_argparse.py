@@ -65,6 +65,7 @@ def command_line_inputs(fake_chef_path):
       'ricecooker uploadchannel {} -v --compress --token=katoken lang=en',
       'ricecooker uploadchannel {} -v --compress --token=katoken lang=en-us',
       'ricecooker uploadchannel {} -v --compress --token=katoken lang=fr-ca',
+      'ricecooker uploadchannel {} -u --compress --token=katoken lang=en-us',
     ]
     test_inputs = [cmdt.format(fake_chef_path) for cmdt in test_input_templates]
     return test_inputs
