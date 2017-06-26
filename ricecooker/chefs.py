@@ -1,6 +1,5 @@
 import argparse
 from importlib.machinery import SourceFileLoader
-import os
 
 from . import config
 from .classes.nodes import ChannelNode
@@ -10,14 +9,6 @@ from .managers.progress import Status
 from .sushi_bar_client import ControlWebSocket
 from .utils.tokens import get_content_curation_token
 
-
-
-def get_env(envvar):
-    if envvar not in os.environ:
-        return None
-    else:
-        return os.environ[envvar]
-CONTENT_CURATION_TOKEN = get_env('CONTENT_CURATION_TOKEN')
 
 
 
