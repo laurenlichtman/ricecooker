@@ -91,7 +91,7 @@ Changes
                 args, options = self.parse_args_and_options()
                 self.run(args, options)
 
-  -  The chef's `run` method is calls `uploadchannel` (or `uploadchannel_wrapper`)
+  -  The chef's `run` method calls `uploadchannel` (or `uploadchannel_wrapper`)
 
          class BaseChef():
              ...

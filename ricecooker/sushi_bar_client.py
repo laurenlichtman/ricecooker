@@ -270,7 +270,7 @@ class ControlWebSocket(ReconnectingWebSocket):
         self.channel = chef.get_channel()
         if not self.channel:
             raise SushiBarNotSupportedException(
-                'Chef does not implement create_channel')
+                'Chef does not implement get_channel')
         self.thread = None
         print('Channel id %s' % self.channel.get_node_id().hex)
         url = config.sushi_bar_control_url(self.channel.get_node_id().hex)

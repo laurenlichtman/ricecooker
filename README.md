@@ -82,11 +82,11 @@ class MySushiChef(SushiChef):
     This is my sushi chef...
     """
     channel_info = {
-       'CHANNEL_SOURCE_DOMAIN': '<yourdomain.org>',       # make sure to change this when testing
-       'CHANNEL_SOURCE_ID': '<some unique identifier>',   # channel's unique id
-       'CHANNEL_TITLE': 'Channel name shown in UI',
-       'CHANNEL_THUMBNAIL': 'http://yourdomain.org/img/logo.jpg', # (optional) local path or url to image file
-       'CHANNEL_DESCRIPTION': 'What is this channel about?',      # (optional) description of the channel (optional)
+        'CHANNEL_SOURCE_DOMAIN': '<yourdomain.org>',       # make sure to change this when testing
+        'CHANNEL_SOURCE_ID': '<some unique identifier>',   # channel's unique id
+        'CHANNEL_TITLE': 'Channel name shown in UI',
+        'CHANNEL_THUMBNAIL': 'http://yourdomain.org/img/logo.jpg', # (optional) local path or url to image file
+        'CHANNEL_DESCRIPTION': 'What is this channel about?',      # (optional) description of the channel (optional)
     }
 
     def construct_channel(self, **kwargs):
