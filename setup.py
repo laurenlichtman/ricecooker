@@ -30,6 +30,7 @@ requirements = [
     "lockfile==0.12.2",
     "css-html-js-minify==2.2.2",
     "websocket-client==0.40.0",
+    "mock==2.0.0",
 ]
 
 test_requirements = [
