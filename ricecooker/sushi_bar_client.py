@@ -241,7 +241,21 @@ class SushiBarClient(object):
             config.LOGGER.error('Error statistics: %s' % e)
 
 
+class LoggingHandler(logging.Handler):
+    """Sends logs to the Sushi Bar server via a websocket."""
 
+    def __init__(self, run_id, ws):
+        logging.Handler.__init__(self)
+        self.run_id = run_id
+        self.ws = ws
+
+    def emit(self, record):
+        try:
+            log_data = record.__dict__
+            log_data['run_id'] = self.run_id
+            self.ws.send(json.dumps(log_data))
+        except Exception as e:
+            print('Logging error: %s' % e)
 
 
 
@@ -284,25 +298,6 @@ class ControlWebSocket(ReconnectingWebSocket):
                 print('Already running')
         else:
             print('Command not supported: %s' % message['command'])
-
-
-
-
-class LoggingHandler(logging.Handler):
-    """Sends logs to the Sushi Bar server via a websocket."""
-
-    def __init__(self, run_id, ws):
-        logging.Handler.__init__(self)
-        self.run_id = run_id
-        self.ws = ws
-
-    def emit(self, record):
-        try:
-            log_data = record.__dict__
-            log_data['run_id'] = self.run_id
-            self.ws.send(json.dumps(log_data))
-        except Exception as e:
-            print('Logging error: %s' % e)
 
 
 class SushiBarNotSupportedException(Exception):
