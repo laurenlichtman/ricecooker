@@ -44,9 +44,9 @@ script should call when it runs on the command line.
 
 The sushi chef class for your channel must have the following attributes:
 
-   - `channel_info` (dict) that looks like this:
+  - `channel_info` (dict) that looks like this:
 
-         channel_info = {
+        channel_info = {
             'CHANNEL_SOURCE_DOMAIN': '<yourdomain.org>',       # who is providing the content (e.g. learningequality.org)
             'CHANNEL_SOURCE_ID': '<some unique identifier>',   # channel's unique id
             'CHANNEL_TITLE': 'Channel name shown in UI',
@@ -54,8 +54,8 @@ The sushi chef class for your channel must have the following attributes:
             'CHANNEL_DESCRIPTION': 'What is this channel about?',      # (optional) description of the channel (optional)
          }
 
-   - `construct_channel(**kwargs) -> ChannelNode`: This method is responsible for
-      building the structure of your channel (to be discussed below).
+  - `construct_channel(**kwargs) -> ChannelNode`: This method is responsible for
+    building the structure of your channel (to be discussed below).
 
 
 To write the `construct_channel` method of your chef class, start by importing
@@ -135,6 +135,7 @@ look at, but it feels kind of empty. Let's add more nodes to it!
 Once your channel is created, you can start adding nodes. To do this, you need to
 convert your data to the rice cooker's objects. Here are the classes that are
 available to you (import from `ricecooker.classes.nodes`):
+
   - __TopicNode__: folders to organize to the channel's content
   - __VideoNode__: content containing mp4 file
   - __AudioNode__: content containing mp3 file
@@ -142,7 +143,9 @@ available to you (import from `ricecooker.classes.nodes`):
   - __HTML5AppNode__: content containing zip of html files (html, js, css, etc.)
   - __ExerciseNode__: assessment-based content with questions
 
+
 Each node has the following attributes:
+
   - __source_id__ (str): content's original id
   - __title__ (str): content's title
   - __license__ (str or License): content's license id or object
@@ -178,14 +181,16 @@ Once you have created the node, add it to a parent node with `parent_node.add_ch
 ### Step 4a: Adding Files ###
 
 To add a file to your node, you must start by creating a file object from `ricecooker.classes.files`. Your sushi chef is responsible for determining which file object to create. Here are the available file models:
-- __ThumbnailFile__: png or jpg files to add to any kind of node
-- __AudioFile__: mp3 file
-- __DocumentFile__: pdf file
-- __HTMLZipFile__: zip of html files (must have `index.html` file at topmost level)
-- __VideoFile__: mp4 file (can be high resolution or low resolution)
-- __SubtitleFile__: vtt files to be used with VideoFiles
-- __WebVideoFile__: video downloaded from site such as YouTube or Vimeo
-- __YouTubeVideoFile__: video downloaded from YouTube using a youtube video id
+
+  - __ThumbnailFile__: png or jpg files to add to any kind of node
+  - __AudioFile__: mp3 file
+  - __DocumentFile__: pdf file
+  - __HTMLZipFile__: zip of html files (must have `index.html` file at topmost level)
+  - __VideoFile__: mp4 file (can be high resolution or low resolution)
+  - __SubtitleFile__: vtt files to be used with VideoFiles
+  - __WebVideoFile__: video downloaded from site such as YouTube or Vimeo
+  - __YouTubeVideoFile__: video downloaded from YouTube using a youtube video id
+
 
 Each file class can be passed a __preset__ and __language__ at initialization (SubtitleFiles must have a language set at initialization). A preset determines what kind of file the object is (e.g. high resolution video vs. low resolution video). A list of available presets can be found at `le_utils.constants.format_presets`. A list of available languages can be found at `le_utils.constants.languages`.
 
@@ -227,17 +232,19 @@ file_object = YouTubeVideoFile(
 ### Step 4b: Adding Exercises ###
 
 ExerciseNodes are special objects that have questions used for assessment. To add a question to your exercise, you must first create a question model from `ricecooker.classes.questions`. Your sushi chef is responsible for determining which question type to create. Here are the available question types:
-- __PerseusQuestion__: special question type for pre-formatted perseus questions
-- __MultipleSelectQuestion__: questions that have multiple correct answers (e.g. check all that apply)
-- __SingleSelectQuestion__: questions that only have one right answer (e.g. radio button questions)
-- __InputQuestion__: questions that have text-based answers (e.g. fill in the blank)
-- __FreeResponseQuestion__: questions that require subjective answers (ungraded)
+
+  - __PerseusQuestion__: special question type for pre-formatted perseus questions
+  - __MultipleSelectQuestion__: questions that have multiple correct answers (e.g. check all that apply)
+  - __SingleSelectQuestion__: questions that only have one right answer (e.g. radio button questions)
+  - __InputQuestion__: questions that have text-based answers (e.g. fill in the blank)
+
 
 Each question class has the following attributes that can be set at initialization:
-- __id__ (str): question's unique id
-- __question__ (str): question body, in plaintext or Markdown format; math expressions must be in Latex format, surrounded by `$`, e.g. `$ f(x) = 2 ^ 3 $`.
-- __answers__ ([{'answer':str, 'correct':bool}]): answers to question, also in plaintext or Markdown
-- __hints__ (str or [str]): optional hints on how to answer question, also in plaintext or Markdown
+
+  - __id__ (str): question's unique id
+  - __question__ (str): question body, in plaintext or Markdown format; math expressions must be in Latex format, surrounded by `$`, e.g. `$ f(x) = 2 ^ 3 $`.
+  - __answers__ ([{'answer':str, 'correct':bool}]): answers to question, also in plaintext or Markdown
+  - __hints__ (str or [str]): optional hints on how to answer question, also in plaintext or Markdown
 
 
 FreeResponseQuestions do not need any answers set.
@@ -318,7 +325,7 @@ The final chef script file `mychef.py` should look like this:
     #!/usr/bin/env python
     ...
     ...
-    class MySushiChef(BaseChef):     # or SushiChef to support remote monitoring
+    class MySushiChef(SushiChef):
         channel_info = { ... }
         def construct_channel(**kwargs):
             ...
@@ -356,19 +363,23 @@ Here the full list of the supported command line args:
    - `[OPTIONS]` any additional key=value options you would like to pass to your construct_channel method
 
 
+
 ### Optional: Resuming the Rice Cooker ###
 
-If your rice cooking session gets interrupted, you can resume from any step that has already completed using `--resume --step=<step>` option. If step is not specified, the rice cooker will resume from the last
-step you ran. If the specified step has not been reached, the rice cooker will resume from
+If your rice cooking session gets interrupted, you can resume from any step that
+has already completed using `--resume --step=<step>` option. If step is not specified,
+the rice cooker will resume from the last step you ran. If the specified step has
+not been reached, the rice cooker will resume from. Other choices for `--step`:
 
-- __LAST__:       			Resume where the session left off (default)
-- __INIT__:                 Resume at beginning of session
-- __CONSTRUCT_CHANNEL__:    Resume with call to construct channel
-- __CREATE_TREE__:          Resume at set tree relationships
-- __DOWNLOAD_FILES__:       Resume at beginning of download process
-- __GET_FILE_DIFF__:        Resume at call to get file diff from Kolibri Studio
-- __START_UPLOAD__:         Resume at beginning of uploading files to Kolibri Studio
-- __UPLOADING_FILES__:      Resume at last upload request
-- __UPLOAD_CHANNEL__:       Resume at beginning of uploading tree to Kolibri Studio
-- __PUBLISH_CHANNEL__:      Resume at option to publish channel
-- __DONE__:                 Resume at prompt to open channel
+  - __LAST__:                 Resume where the session left off (default)
+  - __INIT__:                 Resume at beginning of session
+  - __CONSTRUCT_CHANNEL__:    Resume with call to construct channel
+  - __CREATE_TREE__:          Resume at set tree relationships
+  - __DOWNLOAD_FILES__:       Resume at beginning of download process
+  - __GET_FILE_DIFF__:        Resume at call to get file diff from Kolibri Studio
+  - __START_UPLOAD__:         Resume at beginning of uploading files to Kolibri Studio
+  - __UPLOADING_FILES__:      Resume at last upload request
+  - __UPLOAD_CHANNEL__:       Resume at beginning of uploading tree to Kolibri Studio
+  - __PUBLISH_CHANNEL__:      Resume at option to publish channel
+  - __DONE__:                 Resume at prompt to open channel
+
