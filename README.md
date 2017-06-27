@@ -71,7 +71,7 @@ the metadata associate with the content, and are associated with one or more
 `File` objects (`VideoFile`, `AudioFile`, ...).
 
 For example, here is a simple sushi chef class whose `construct_channel` builds
-a tree with a single topic. Mmmm, potato... Potato give you power!
+a tree with a single topic.
 
 ```
 from ricecooker.chefs import SushiChef
@@ -109,7 +109,8 @@ class MySushiChef(SushiChef):
 You can now run of you chef by creating an instance of the chef class and calling
 it's `run` method:
 
-````
+
+```
 mychef = MySushiChef()
 args = {'token': 'YOURTOKENHERE9139139f3a23232', 'reset': True, 'verbose': True}
 options = {}
@@ -126,7 +127,7 @@ instead of using the default values.
 
 If the channel run was successful, you should be able to see your single-topic
 channel on the content curation server. The topic node "Potatoes!" is nice to
-look at, but it's kind of empty. Let's add more nodes to it!
+look at, but it feels kind of empty. Let's add more nodes to it!
 
 
 ### Step 3: Creating Nodes ###
