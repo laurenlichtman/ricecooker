@@ -17,9 +17,9 @@ A framework for creating channels on [Kolibri Studio](https://contentworkshop.le
 ## Using the Rice Cooker
 
 The rice cooker is a framework you can use to translate content into Kolibri-compatible objects.
-The following steps will guide you through how to create a program, or sushi chef, to utilize this framework.
-A sample sushi chef has been created [here](https://github.com/learningequality/ricecooker/blob/master/examples/sample_program.py)
-
+The following steps will guide you through the creation of a program, or sushi chef,
+that uses the `ricecooker` framework.
+A sample sushi chef has been created [here](https://github.com/learningequality/ricecooker/blob/master/examples/sample_program.py).
 
 
 ### Step 1: Obtaining an Authorization Token ###
@@ -33,68 +33,127 @@ You will need an authorization token to create a channel on Kolibri Studio. In o
 
 
 
-### Step 2: Initializing the Channel ###
+### Step 2: Creating a Sushi Chef class ###
 
-To run the Ricecooker, you must include `create_channel` and `construct_channel` methods in your sushi chef file.
-`create_channel` should return only a ChannelNode object. `construct_channel` will be responsible for building the structure of your channel.
+To use the Ricecooker, your chef script must define a sushi chef class that is a
+subclass of the class `ricecooker.chefs.SushiChef`. Since it inheriting from the
+`SushiChef` class, your chef class will have the method `run` which performs all
+the work of uploading your channel to the content curation server.
+Your sushi chef class will also inherit the method `main`, which your sushi chef
+script should call when it runs on the command line.
 
-Start by importing `ChannelNode` from `ricecooker.classes.nodes` and create a ChannelNode object. The ChannelNode class has the following fields:
-- __source_id__ (str): channel's unique id
-- __source_domain__ (str): who is providing the content (e.g. learningequality.org)
-- __title__ (str): name of channel
-- __description__ (str): description of the channel (optional)
-- __thumbnail__ (str): local path or url to image file (optional)
+The sushi chef class for your channel must have the following attributes:
+
+   - `channel_info` (dict) that looks like this:
+
+         channel_info = {
+            'CHANNEL_SOURCE_DOMAIN': '<yourdomain.org>',       # who is providing the content (e.g. learningequality.org)
+            'CHANNEL_SOURCE_ID': '<some unique identifier>',   # channel's unique id
+            'CHANNEL_TITLE': 'Channel name shown in UI',
+            'CHANNEL_THUMBNAIL': 'http://yourdomain.org/img/logo.jpg', # (optional) local path or url to image file
+            'CHANNEL_DESCRIPTION': 'What is this channel about?',      # (optional) description of the channel (optional)
+         }
+
+   - `construct_channel(**kwargs) -> ChannelNode`: This method is responsible for
+      building the structure of your channel (to be discussed below).
 
 
-For example:
+To write the `construct_channel` method of your chef class, start by importing
+`ChannelNode` from `ricecooker.classes.nodes` and create a `ChannelNode` using
+the data in `self.channel_info`. Once you have the `ChannelNode` instance, the
+rest of your chef's `construct_channel` method is responsible for constructing
+the channel by adding various `Node`s using the method `add_child`.
+`TopicNode`s correspond to folders, while `ContentNode`s correspond to different
+type of content nodes.
+
+`ContentNode` objects (and subclasses like `VideoNode`, `AudioNode`, ...) store
+the metadata associate with the content, and are associated with one or more
+`File` objects (`VideoFile`, `AudioFile`, ...).
+
+For example, here is a simple sushi chef class whose `construct_channel` builds
+a tree with a single topic. Mmmm, potato... Potato give you power!
+
 ```
-from ricecooker.classes.nodes import ChannelNode
+from ricecooker.chefs import SushiChef
+from ricecooker.classes.nodes import ChannelNode, TopicNode
 
-def create_channel(args):
+class MySushiChef(SushiChef):
+    """
+    This is my sushi chef...
+    """
+    channel_info = {
+       'CHANNEL_SOURCE_DOMAIN': '<yourdomain.org>',       # make sure to change this when testing
+       'CHANNEL_SOURCE_ID': '<some unique identifier>',   # channel's unique id
+       'CHANNEL_TITLE': 'Channel name shown in UI',
+       'CHANNEL_THUMBNAIL': 'http://yourdomain.org/img/logo.jpg', # (optional) local path or url to image file
+       'CHANNEL_DESCRIPTION': 'What is this channel about?',      # (optional) description of the channel (optional)
+    }
 
-    channel = ChannelNode(
-        source_domain = "learningequality.org",
-        source_id = "rice-channel",
-        title = "Rice Channel",
-        thumbnail = "http://path/to/some/image.png"
-    )
+    def construct_channel(self, **kwargs):
+        channel_info = self.channel_info
+        # create channel
+        channel = ChannelNode(
+            source_domain = channel_info['CHANNEL_SOURCE_DOMAIN'],
+            source_id = channel_info['CHANNEL_SOURCE_ID'],
+            title = channel_info['CHANNEL_TITLE'],
+            thumbnail = channel_info.get('CHANNEL_THUMBNAIL'),
+            description = channel_info.get('CHANNEL_DESCRIPTION'),
+       )
+       # create a topic and add it to channel
+       potato_topic = TopicNode(source_id="<potatos_id>", title="Potatoes!")
+       channel.add_child(potato_topic)
+       return channel
 
-    return channel
-
-def construct_channel(args):
-
-    channel = create_channel(args)
-    build_tree(channel) 	# see sample_program.py for example build_tree function
-
-    return channel
 ```
 
+You can now run of you chef by creating an instance of the chef class and calling
+it's `run` method:
+
+````
+mychef = MySushiChef()
+args = {'token': 'YOURTOKENHERE9139139f3a23232', 'reset': True, 'verbose': True}
+options = {}
+mychef.run(args, options)
+```
+
+Note: Normally you'll pass `args` and `options` on the command line, but you can
+pass dict objects with the necessary parameters for testing.
+
+If you get an error, make sure you've replaced `YOURTOKENHERE9139139f3a23232` by
+the token you obtained from the content curation server and you've changed
+`channel_info['CHANNEL_SOURCE_DOMAIN']` and/or `channel_info['CHANNEL_SOURCE_ID']`
+instead of using the default values.
+
+If the channel run was successful, you should be able to see your single-topic
+channel on the content curation server. The topic node "Potatoes!" is nice to
+look at, but it's kind of empty. Let's add more nodes to it!
 
 
 ### Step 3: Creating Nodes ###
 
-Once your channel is created, you can start adding nodes. To do this, you will need to convert your data to the rice cooker's objects. Here are the classes that are available to you (import from `ricecooker.classes.nodes`):
-- __TopicNode__: folders to organize to the channel's content
-- __VideoNode__: content containing mp4 file
-- __AudioNode__: content containing mp3 file
-- __DocumentNode__: content containing pdf file
-- __HTML5AppNode__: content containing zip of html files (html, js, css, etc.)
-- __ExerciseNode__: assessment-based content with questions
-
+Once your channel is created, you can start adding nodes. To do this, you need to
+convert your data to the rice cooker's objects. Here are the classes that are
+available to you (import from `ricecooker.classes.nodes`):
+  - __TopicNode__: folders to organize to the channel's content
+  - __VideoNode__: content containing mp4 file
+  - __AudioNode__: content containing mp3 file
+  - __DocumentNode__: content containing pdf file
+  - __HTML5AppNode__: content containing zip of html files (html, js, css, etc.)
+  - __ExerciseNode__: assessment-based content with questions
 
 Each node has the following attributes:
-- __source_id__ (str): content's original id
-- __title__ (str): content's title
-- __license__ (str or License): content's license id or object
-- __description__ (str): description of content (optional)
-- __author__ (str): who created the content (optional)
-- __thumbnail__ (str or ThumbnailFile): path to thumbnail or file object (optional)
-- __files__ ([FileObject]): list of file objects for node (optional)
-- __extra_fields__ (dict): any additional data needed for node (optional)
-- __domain_ns__ (uuid): who is providing the content (e.g. learningequality.org) (optional)
+  - __source_id__ (str): content's original id
+  - __title__ (str): content's title
+  - __license__ (str or License): content's license id or object
+  - __description__ (str): description of content (optional)
+  - __author__ (str): who created the content (optional)
+  - __thumbnail__ (str or ThumbnailFile): path to thumbnail or file object (optional)
+  - __files__ ([FileObject]): list of file objects for node (optional)
+  - __extra_fields__ (dict): any additional data needed for node (optional)
+  - __domain_ns__ (uuid): who is providing the content (e.g. learningequality.org) (optional)
 
 **IMPORTANT**: nodes representing distinct pieces of content MUST have distinct `source_id`s.
-Each node has a `content_id` (computed as a function of the `source_domain` and the node's `source_id`) that uniquely identifies a piece of content within Kolibri for tracking purposes. For example, if the same video occurs in multiple places in the tree, you would use the same `source_id` for those nodes -- but content nodes that aren't for that video need to have different `source_id`s.
+Each node has a `content_id` (computed as a function of the `source_domain` and the node's `source_id`) that uniquely identifies a piece of content within Kolibri for progress tracking purposes. For example, if the same video occurs in multiple places in the tree, you would use the same `source_id` for those nodes -- but content nodes that aren't for that video need to have different `source_id`s.
 
 All non-topic nodes must be assigned a license upon initialization. You can use the license's id (found under `le_utils.constants.licenses`) or create a license object from `ricecooker.classes.licenses` (recommended). When initializing a license object, you  can specify a __copyright_holder__ (str), or the person or organization who owns the license. If you are unsure which license class to use, a `get_license` method has been provided that takes in a license id and returns a corresponding license object.
 
@@ -236,25 +295,64 @@ Once you have created the appropriate question object, add it to an exercise obj
 
 
 
-### Step 5: Running the Rice Cooker ###
+### Step 5: Running your chef script ###
 
-Run `python -m ricecooker uploadchannel [-huv] "<path-to-py-file>" [--warn] [--compress] [--download-attempts=<n>] [--token=<token>] [--resume [--step=<step>] | --reset] [--prompt] [--publish]  [[OPTIONS] ...]`
-- -h (help) will print how to use the rice cooker
-- -v (verbose) will print what the rice cooker is doing
-- -u (update) will force the ricecooker to redownload all files (skip checking the cache)
-- --download-attempts will set the maximum number of times to retry downloading files
-- --warn will print out warnings during rice cooking session
-- --compress will compress your high resolution videos to save space
-- --token will authorize you to create your channel (obtained in Step 1)
-- --resume will resume your previous rice cooking session
-- --step will specify at which step to resume your session
-- --reset will automatically start the rice cooker from the beginning
-- --prompt will prompt you to open your channel once it's been uploaded
-- --publish will automatically publish your channel once it's been uploaded
-- --daemon will start the chef in daemon mode (i.e. the chef will not execute
-           immediately; instead, it will wait to receive commands via the Sushi Bar)
-- [OPTIONS] any additional keyword arguments you would like to pass to your construct_channel method
+Your sushi chef scripts will run as standalone command line application
+`mychef.py` which you can call from the command line.
 
+To make the script file `mychef.py` a command line program, you need to do three things:
+
+  - Add the line `#!/usr/bin/env python` as the first line of `mychef.py`
+  - Add this code block at the bottom of `mychef.py`:
+
+        if __name__ == '__main__':
+            chef = MySushiChef()
+            chef.main()
+
+  - Make the file `mychef.py` executable by running `chmod +x mychef.py` on the
+    command line.
+
+The final chef script file `mychef.py` should look like this:
+
+    #!/usr/bin/env python
+    ...
+    ...
+    class MySushiChef(BaseChef):     # or SushiChef to support remote monitoring
+        channel_info = { ... }
+        def construct_channel(**kwargs):
+            ...
+            ...
+    ...
+    ...
+    if __name__ == '__main__':
+        chef = MySushiChef()
+        chef.main()
+
+You can now call the script by passing the appropriate command line arguments:
+
+    ./mychef.py -v --token=YOURTOKENHERE9139139f3a23232 --reset
+
+To see the help menu, type
+
+    ./mychef.py -h
+
+Here the full list of the supported command line args:
+
+   - `-h` (help) will print how to use the rice cooker
+   - `-v` (verbose) will print what the rice cooker is doing
+   - `-u` (update) will force the ricecooker to redownload all files (skip checking the cache)
+   - `--download-attempts=3` will set the maximum number of times to retry downloading files
+   - `--warn` will print out warnings during rice cooking session
+   - `--compress` will compress your high resolution videos to save space
+   - `--token` will authorize you to create your channel (obtained in Step 1)
+   - `--resume` will resume your previous rice cooking session
+   - `--step=LAST` will specify at which step to resume your session
+   - `--reset` will automatically start the rice cooker from the beginning
+   - `--prompt` will prompt you to open your channel once it's been uploaded
+   - `--publish` will automatically publish your channel once it's been uploaded
+   - `--daemon` will start the chef in daemon mode (i.e. the chef will not execute
+      immediately; instead, it will wait to receive commands via the Sushi Bar)
+   - `[OPTIONS]` any additional key=value options you would like to pass to your construct_channel method
 
 
 ### Optional: Resuming the Rice Cooker ###
