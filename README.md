@@ -247,14 +247,6 @@ Each question class has the following attributes that can be set at initializati
   - __hints__ (str or [str]): optional hints on how to answer question, also in plaintext or Markdown
 
 
-FreeResponseQuestions do not need any answers set.
-```
-question = FreeResponseQuestion(
-    question = "Explain why any number times 1 is itself.",
-    ...
-)
-```
-
 To set the correct answer(s) for MultipleSelectQuestions, you must provide a list of all of the possible choices as well as an array of the correct answers (`all_answers [str]`) and `correct_answers [str]` respectively).
 ```
 question = MultipleSelectQuestion(
