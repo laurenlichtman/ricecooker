@@ -120,7 +120,9 @@ class BaseChef(object):
             options (dict): additional compatibility mode options given on command line
         """
         self.pre_run(args, options)
-        uploadchannel(self, **args.__dict__, **options)
+        args_and_options = args.__dict__.copy()
+        args_and_options.update(options)
+        uploadchannel(self, **args_and_options)
 
 
     def get_channel(self, **kwargs):

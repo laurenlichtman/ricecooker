@@ -26,7 +26,9 @@ def uploadchannel_wrapper(chef, args, options):
     Call `uploadchannel` with SushiBar monitoring and progress reporting enabled.
     """
     try:
-        uploadchannel(chef, **args.__dict__, **options)
+        args_and_options = args.__dict__.copy()
+        args_and_options.update(options)
+        uploadchannel(chef, **args_and_options)
         config.SUSHI_BAR_CLIENT.report_stage('COMPLETED', 0)
     except Exception as e:
         if config.SUSHI_BAR_CLIENT:
